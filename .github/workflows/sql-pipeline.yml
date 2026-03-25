@@ -1,4 +1,4 @@
-name: SQL DevOps Pipeline
+name: SQL Server Deployment Pipeline
 
 on:
   push:
@@ -6,22 +6,15 @@ on:
       - main
 
 jobs:
-  sql-run:
-    runs-on: ubuntu-latest
+  deploy-sql:
+    runs-on: self-hosted
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install SQLite
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sqlite3
-
-      - name: Run SQL script
-        run: |
-          sqlite3 test.db < sql/create_tables.sql
+      - name: Deploy SQL script
+        run: sqlcmd -S localhost -E -C -i sql/deploy.sql
 
       - name: Verify tables
-        run: |
-          sqlite3 test.db ".tables"
+        run: sqlcmd -S localhost -E -C -Q "USE DevOpsLab; SELECT name FROM sys.tables;"
